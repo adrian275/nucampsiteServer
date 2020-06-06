@@ -16,11 +16,11 @@ const commentSchema = new Schema({
    },
    text: {
        type: String, 
-       reequired: true
+       required: true
    }, 
    author: {
        type: String, 
-       Required: true
+       required: true
    }
 }, {
    timestamps: true
