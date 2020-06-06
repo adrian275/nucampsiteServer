@@ -34,6 +34,6 @@ const promotionSchema = new Schema({
  });
  //create a model
 //returns a constructor function
-const Campsite = mongoose.model('Promotion', promotionSchema);
+const Promotion = mongoose.model('Promotion', promotionSchema);
 //export model
 module.exports = Promotion;
