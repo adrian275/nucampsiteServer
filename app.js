@@ -1,8 +1,9 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const passport = require('passport');
+const config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -17,7 +18,7 @@ const partnerRouter = require('./routes/partnerRouter');
 
 const mongoose = require('mongoose');
 
-const url = 'mongodb://localhost:27017/nucampsite';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
     useCreateIndex: true,
     useFindAndModify: false,
@@ -25,10 +26,7 @@ const connect = mongoose.connect(url, {
     useUnifiedTopology: true
 });
 
-const session = require('express-session');
-const FileStore = require('session-file-store')(session);
-const passport = require('passport');
-const authenticate = require('./authenticate');
+
 
 connect.then(() => console.log('Connected correctly to server'), err => console.log(err)
 );
@@ -38,33 +36,11 @@ var app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-  name: 'session-id',
-  secret: '12345-67890-09876-54321',
-  saveUninitialized: false,//when a new session is created, with no updates, it won't get saved, no cookie will be sent to client
-  resave: false,//once session is created and updated and saved, it will continue to be resaved whenever a request is made for that session, even if that request didn't make any updates
-  store: new FileStore()//create new file store as object, save session info to server hard disc
-}));
 
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-function auth(req, res, next) {
-  console.log(req.user);
-
-  if (!req.user) {
-      const err = new Error('You are not authenticated!');                    
-      err.status = 401;
-      return next(err);
-  } else {
-      return next();
-  }
-}
-
-app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
